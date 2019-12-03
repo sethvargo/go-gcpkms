@@ -39,23 +39,23 @@ type Signer struct {
 	publicKey    crypto.PublicKey
 }
 
-// NewSigner creates a new signer. The cryptoKeyVersionID must be in the format
+// NewSigner creates a new signer. The keyID must be in the format
 // projects/p/locations/l/keyRings/r/cryptoKeys/k/cryptoKeyVersions/v.
-func NewSigner(ctx context.Context, client *kms.KeyManagementClient, cryptoKeyVersionID string) (*Signer, error) {
+func NewSigner(ctx context.Context, client *kms.KeyManagementClient, keyID string) (*Signer, error) {
 	if client == nil {
 		return nil, fmt.Errorf("kms client cannot be nil")
 	}
 
-	// Get the key information
-	ckv, err := client.GetCryptoKeyVersion(ctx, &kmspb.GetCryptoKeyVersionRequest{
-		Name: cryptoKeyVersionID,
+	// Get the public key
+	pk, err := client.GetPublicKey(ctx, &kmspb.GetPublicKeyRequest{
+		Name: keyID,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to lookup key: %w", err)
+		return nil, fmt.Errorf("failed to fetch public key: %w", err)
 	}
 
 	// Verify it's a key used for signing
-	switch ckv.Algorithm {
+	switch pk.Algorithm {
 	case kmspb.CryptoKeyVersion_RSA_SIGN_PSS_2048_SHA256,
 		kmspb.CryptoKeyVersion_RSA_SIGN_PSS_3072_SHA256,
 		kmspb.CryptoKeyVersion_RSA_SIGN_PSS_4096_SHA256,
@@ -67,15 +67,7 @@ func NewSigner(ctx context.Context, client *kms.KeyManagementClient, cryptoKeyVe
 		kmspb.CryptoKeyVersion_EC_SIGN_P256_SHA256,
 		kmspb.CryptoKeyVersion_EC_SIGN_P384_SHA384:
 	default:
-		return nil, fmt.Errorf("unknown signing algorithm %s", ckv.Algorithm.String())
-	}
-
-	// Get the public key PEM
-	pk, err := client.GetPublicKey(ctx, &kmspb.GetPublicKeyRequest{
-		Name: ckv.Name,
-	})
-	if err != nil {
-		return nil, fmt.Errorf("failed to fetch public key: %w", err)
+		return nil, fmt.Errorf("unknown signing algorithm %s", pk.Algorithm.String())
 	}
 
 	// Parse the public key
@@ -86,8 +78,8 @@ func NewSigner(ctx context.Context, client *kms.KeyManagementClient, cryptoKeyVe
 
 	return &Signer{
 		client:       client,
-		keyID:        cryptoKeyVersionID,
-		keyAlgorithm: ckv.Algorithm,
+		keyID:        keyID,
+		keyAlgorithm: pk.Algorithm,
 		publicKey:    publicKey,
 	}, nil
 }

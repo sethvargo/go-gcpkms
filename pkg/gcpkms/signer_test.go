@@ -44,7 +44,7 @@ func TestNewSigner(t *testing.T) {
 			name:   "bad key",
 			client: client,
 			ckv:    "nope nope nope",
-			err:    "failed to lookup key",
+			err:    "failed to fetch public key",
 		},
 		{
 			name:   "ok",
