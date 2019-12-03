@@ -1,0 +1,14 @@
+
+{
+  "_comment": "Yes, this is a GCP service account. It only has permission to get public key, sign, and decrypt data on exactly 2 keys.",
+  "type": "service_account",
+  "project_id": "sethvargo-gcpkms-test",
+  "private_key_id": "278216847d0f0db1508395bc6b8d072e5f17ef5d",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCkadpmvtSBnMLL\n5XhCHvzLQwtd6OxLgZEb957wF/EgQMG/1RJN/rzaQu+JU8U+7dIbDxh+1lc0SNTc\npEw7kedFVW7nywa3n7Vb7Zia1Sqzux6MqJ4EnzM0C/PJiBzXK2bzOz60Quv4wzQk\nPADS/JM5GTBhjlNd/9unqRBjv46zzpysAyFtEHbvrtAbFmi+ojfabplOLpnHKHAo\nXjCr4IC+hXhT7MI/UTRk4i8D6ItEbjfjB4jVXizm0Bf/EmRjGQ7TgIzvj06W8Sml\nSSnHmPB8eHStgdDgtseg64cmXC3vFJkukyKuvKw/iTi3r0CpV6sNsP3sA+VykjYZ\nPum6JubxAgMBAAECggEAAQIGmjHAfY613Sdbe4jVO8OsggGQL6P6wQjXmmebiID4\nhOqrlyAKweclCiGQfzoemTuj73Y2mu63CRtj3MOoHgiQ3uudwtPLz4wyFaR8ILDO\nBsxnfsz0iC7uHriroMYHF3F3zPZbuyQnJl39Kk30xHVpJBoF/5XZgpCrHoP4gAnn\n1a7JSb5nCnVfUcrleekgOthUkE7G/cgDD9vXgzLxY/+lWNRLn3wSdYg4hM1FiLaa\nqLAB/aIxIQOnxOxl7UsLKTtybJ1X2c02YajEcmRtD9wpoB3i932plddqH7nXOXyN\nLIeWewDYJhRlpRkU0BupqgOBzwVoRP+xh8YZdm99vQKBgQDhQI6t1wK21ncFHNlS\n7uDDbsw7NvbeC6z8zLzIFSWVmW8eAkn6+13juHppMuryBJ1uInkns/yuaX4KYq2k\n0r0FWk1KMQsrW+lctmVSun/fiVQbvhRy0nWH8Al95bMvmWvOdo6Tzuy/MLeqWTgX\nNo0SfQtFyvHzcXQkYrimsQgCNQKBgQC620lQqWGJsqW4ElnghY8/2gSIijS6gLCb\nJ06lfw1glr/BRj6j0dAaVcSwDjUV4dzrDDPy//du0wPTnX5iX7mhqHd9Ylqn0XuB\n3Yc/9IRP2p3meoFSp5wBH5M+qajOzOX4gFGwpmJBw/QdmrbXSPIQOEcuV+oCHpFK\nOfGghUzpTQKBgH7qXvn4EaFvSXRqAtFFowK6pPwgRgxqS7fMq/mYYKrf3snrxD9T\n7lzmjqJDfDmM/B8X8We7c/3ZlpjHbMtXqgUgEjhhVcfCa8Q/SOvKBU6wE+HlwaPI\njUxgpRh4mfOR4Dpedos1phM7oeCrkH0T0Xy/U+CpLpZaMHRn416YlMiZAoGAeKQm\nJL8Ha4j9N+gZQT3aLCaN8L4Spyt5WuM5At8R+v+5lIbO4KQRUT94+xZhLdyi7tr1\nG3op/dKd0N4JgGg/iOElLL34vAsjS8iEj0VGu+vxMKJ9pqjyr0L8pWOSyto9zIDE\nvWHfZIiorwh57mt5ZgF/66r1OiMUOTFKERKfgq0CgYEAt8/mXpMC7Z7NvPr1F9JA\nMvuslYxswHk72qyykgTQSy39CUx0HVcmvrQHibHyktKIZx8RTum+NCu/VmmagWQ7\nLnOXzPaa8QSvl9yfCBo4nCPbzzC9Ra4XtLtJxBBgPs8ry+OFlVrH8Awst4W4ux0Q\n0Sq6ohIsfuMgVv6IsY8lnjg=\n-----END PRIVATE KEY-----\n",
+  "client_email": "travis-ci@sethvargo-gcpkms-test.iam.gserviceaccount.com",
+  "client_id": "114476344299001018415",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/travis-ci%40sethvargo-gcpkms-test.iam.gserviceaccount.com"
+}
