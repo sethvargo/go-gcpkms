@@ -1,6 +1,6 @@
 # Google Cloud KMS - Golang Crypto Interface
 
-[![Godoc Reference](https://img.shields.io/badge/godoc-Reference-brightgreen.svg?style=flat-square)][godoc]
+[![Godoc Reference](https://img.shields.io/badge/godoc-Reference-blue.svg?style=flat-square)][godoc]
 
 This package wraps the [Google Cloud KMS][cloud-kms] Go library to implement
 Go's [crypto.Decrypter][crypto.decrypter] and [crypto.Signer][crypto.signer]
@@ -41,4 +41,4 @@ For more examples, please see the [package godoc][godoc].
 [cloud-kms]: https://cloud.google.com/kms
 [crypto.decrypter]: https://golang.org/pkg/crypto/#Decrypter
 [crypto.signer]: https://golang.org/pkg/crypto/#Signer
-[godoc]: https://godoc.org/github.com/sethvargo/go-gcpkms/pkg/gcpkms
+[godoc]: https://pkg.go.dev/github.com/sethvargo/go-gcpkms
