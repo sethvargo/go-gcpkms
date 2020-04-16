@@ -33,10 +33,10 @@ type Signer struct {
 	ctx     context.Context
 	ctxLock sync.RWMutex
 
-	client       *kms.KeyManagementClient
-	keyID        string
-	keyAlgorithm kmspb.CryptoKeyVersion_CryptoKeyVersionAlgorithm
-	publicKey    crypto.PublicKey
+	client    *kms.KeyManagementClient
+	keyID     string
+	publicKey crypto.PublicKey
+	digestAlg crypto.Hash
 }
 
 // NewSigner creates a new signer. The keyID must be in the format
@@ -55,17 +55,21 @@ func NewSigner(ctx context.Context, client *kms.KeyManagementClient, keyID strin
 	}
 
 	// Verify it's a key used for signing
+	var digestAlg crypto.Hash
 	switch pk.Algorithm {
 	case kmspb.CryptoKeyVersion_RSA_SIGN_PSS_2048_SHA256,
 		kmspb.CryptoKeyVersion_RSA_SIGN_PSS_3072_SHA256,
 		kmspb.CryptoKeyVersion_RSA_SIGN_PSS_4096_SHA256,
-		kmspb.CryptoKeyVersion_RSA_SIGN_PSS_4096_SHA512,
 		kmspb.CryptoKeyVersion_RSA_SIGN_PKCS1_2048_SHA256,
 		kmspb.CryptoKeyVersion_RSA_SIGN_PKCS1_3072_SHA256,
 		kmspb.CryptoKeyVersion_RSA_SIGN_PKCS1_4096_SHA256,
-		kmspb.CryptoKeyVersion_RSA_SIGN_PKCS1_4096_SHA512,
-		kmspb.CryptoKeyVersion_EC_SIGN_P256_SHA256,
-		kmspb.CryptoKeyVersion_EC_SIGN_P384_SHA384:
+		kmspb.CryptoKeyVersion_EC_SIGN_P256_SHA256:
+		digestAlg = crypto.SHA256
+	case kmspb.CryptoKeyVersion_EC_SIGN_P384_SHA384:
+		digestAlg = crypto.SHA384
+	case kmspb.CryptoKeyVersion_RSA_SIGN_PSS_4096_SHA512,
+		kmspb.CryptoKeyVersion_RSA_SIGN_PKCS1_4096_SHA512:
+		digestAlg = crypto.SHA512
 	default:
 		return nil, fmt.Errorf("unknown signing algorithm %s", pk.Algorithm.String())
 	}
@@ -77,16 +81,21 @@ func NewSigner(ctx context.Context, client *kms.KeyManagementClient, keyID strin
 	}
 
 	return &Signer{
-		client:       client,
-		keyID:        keyID,
-		keyAlgorithm: pk.Algorithm,
-		publicKey:    publicKey,
+		client:    client,
+		keyID:     keyID,
+		publicKey: publicKey,
+		digestAlg: digestAlg,
 	}, nil
 }
 
 // Public returns the public key for the signer.
 func (s *Signer) Public() crypto.PublicKey {
 	return s.publicKey
+}
+
+// DigestAlg returns the hash algorithm used for computing the digest.
+func (s *Signer) DigestAlg() crypto.Hash {
+	return s.digestAlg
 }
 
 // WithContext adds the given context to the signer. Normally this would be
@@ -102,38 +111,26 @@ func (s *Signer) WithContext(ctx context.Context) *Signer {
 
 // Sign signs the given digest. Both the io.Reader and crypto.SignerOpts are
 // unused.
-func (s *Signer) Sign(_ io.Reader, digest []byte, _ crypto.SignerOpts) ([]byte, error) {
+func (s *Signer) Sign(_ io.Reader, digest []byte, opts crypto.SignerOpts) ([]byte, error) {
 	ctx := s.context()
 
-	// Calculate the correct digest based on the key's algorithm
+	// Make sure the opts and digest length are correct
+	if opts != nil && opts.HashFunc() != s.DigestAlg() {
+		return nil, fmt.Errorf("digest algorithm is %d, want %d", opts.HashFunc(), s.DigestAlg())
+	}
+	if len(digest) != s.DigestAlg().Size() {
+		return nil, fmt.Errorf("digest length is %d, want %d", len(digest), s.DigestAlg().Size())
+	}
+
+	// Set the correct digest based on the key's digest algorithm
 	var dig *kmspb.Digest
-	switch s.keyAlgorithm {
-	case kmspb.CryptoKeyVersion_RSA_SIGN_PSS_2048_SHA256,
-		kmspb.CryptoKeyVersion_RSA_SIGN_PSS_3072_SHA256,
-		kmspb.CryptoKeyVersion_RSA_SIGN_PSS_4096_SHA256,
-		kmspb.CryptoKeyVersion_RSA_SIGN_PKCS1_2048_SHA256,
-		kmspb.CryptoKeyVersion_RSA_SIGN_PKCS1_3072_SHA256,
-		kmspb.CryptoKeyVersion_RSA_SIGN_PKCS1_4096_SHA256,
-		kmspb.CryptoKeyVersion_EC_SIGN_P256_SHA256:
-		dig = &kmspb.Digest{
-			Digest: &kmspb.Digest_Sha256{
-				Sha256: digest,
-			},
-		}
-	case kmspb.CryptoKeyVersion_EC_SIGN_P384_SHA384:
-		dig = &kmspb.Digest{
-			Digest: &kmspb.Digest_Sha384{
-				Sha384: digest,
-			},
-		}
-	case kmspb.CryptoKeyVersion_RSA_SIGN_PKCS1_4096_SHA512:
-		dig = &kmspb.Digest{
-			Digest: &kmspb.Digest_Sha512{
-				Sha512: digest,
-			},
-		}
-	default:
-		return nil, fmt.Errorf("unknown signing algorithm %s", s.keyAlgorithm.String())
+	switch s.DigestAlg() {
+	case crypto.SHA256:
+		dig = &kmspb.Digest{Digest: &kmspb.Digest_Sha256{Sha256: digest}}
+	case crypto.SHA384:
+		dig = &kmspb.Digest{Digest: &kmspb.Digest_Sha384{Sha384: digest}}
+	case crypto.SHA512:
+		dig = &kmspb.Digest{Digest: &kmspb.Digest_Sha512{Sha512: digest}}
 	}
 
 	// Sign the digest
