@@ -93,8 +93,8 @@ func (s *Signer) Public() crypto.PublicKey {
 	return s.publicKey
 }
 
-// DigestAlg returns the hash algorithm used for computing the digest.
-func (s *Signer) DigestAlg() crypto.Hash {
+// DigestAlgorithm returns the hash algorithm used for computing the digest.
+func (s *Signer) DigestAlgorithm() crypto.Hash {
 	return s.digestAlg
 }
 
@@ -115,16 +115,16 @@ func (s *Signer) Sign(_ io.Reader, digest []byte, opts crypto.SignerOpts) ([]byt
 	ctx := s.context()
 
 	// Make sure the opts and digest length are correct
-	if opts != nil && opts.HashFunc() != s.DigestAlg() {
-		return nil, fmt.Errorf("digest algorithm is %d, want %d", opts.HashFunc(), s.DigestAlg())
+	if opts != nil && opts.HashFunc() != s.digestAlg {
+		return nil, fmt.Errorf("digest algorithm is %d, want %d", opts.HashFunc(), s.digestAlg)
 	}
-	if len(digest) != s.DigestAlg().Size() {
-		return nil, fmt.Errorf("digest length is %d, want %d", len(digest), s.DigestAlg().Size())
+	if len(digest) != s.digestAlg.Size() {
+		return nil, fmt.Errorf("digest length is %d, want %d", len(digest), s.digestAlg.Size())
 	}
 
 	// Set the correct digest based on the key's digest algorithm
 	var dig *kmspb.Digest
-	switch s.DigestAlg() {
+	switch s.digestAlg {
 	case crypto.SHA256:
 		dig = &kmspb.Digest{Digest: &kmspb.Digest_Sha256{Sha256: digest}}
 	case crypto.SHA384:
