@@ -13,7 +13,7 @@ package main
 
 import (
   kms "cloud.google.com/go/kms/apiv1"
-  "github.com/sethvargo/gcpkms/pkg/gcpkms"
+  "github.com/sethvargo/go-gcpkms/pkg/gcpkms"
 )
 
 func main() {
