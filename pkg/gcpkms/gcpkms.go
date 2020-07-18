@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package gcpkms wraps the Google Cloud KMS Go library to implement Go's
+// crypto.Decrypter crypto.Signer interfaces.
 package gcpkms
 
 import (

@@ -1,0 +1,56 @@
+# Copyright The Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: Test
+on:
+  push:
+    branches:
+    - main
+    tags:
+    - '*'
+  pull_request:
+    branches:
+    - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions/setup-go@v2
+      with:
+        go-version: '1.14'
+
+    - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      with:
+        service_account_key: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
+        export_default_credentials: true
+
+    - uses: actions/cache@v2
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - name: Lint
+      run: make fmtcheck staticcheck spellcheck
+
+    - name: Test
+      run: make test-acc
+      env:
+        TEST_DECRYPTER_KEY: projects/sethvargo-gcpkms-test/locations/global/keyRings/test-keyring/cryptoKeys/decrypter/cryptoKeyVersions/1
+        TEST_SIGNER_KEY: projects/sethvargo-gcpkms-test/locations/global/keyRings/test-keyring/cryptoKeys/signer/cryptoKeyVersions/1
