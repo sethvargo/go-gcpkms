@@ -22,35 +22,38 @@ on:
   pull_request:
     branches:
     - main
+  workflow_dispatch:
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
-    - uses: actions/setup-go@v2
+    - uses: actions/setup-go@v3
       with:
-        go-version: '1.14'
+        go-version: '1.18'
 
-    - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+    - uses: google-github-actions/auth@v0
       with:
-        service_account_key: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
-        export_default_credentials: true
+        credentials_json: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
 
-    - uses: actions/cache@v2
+    - uses: actions/cache@v3
       with:
         path: ~/go/pkg/mod
         key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
         restore-keys: |
           ${{ runner.os }}-go-
 
-    - name: Lint
-      run: make fmtcheck staticcheck spellcheck
-
     - name: Test
-      run: make test-acc
       env:
         TEST_DECRYPTER_KEY: projects/sethvargo-gcpkms-test/locations/global/keyRings/test-keyring/cryptoKeys/decrypter/cryptoKeyVersions/1
         TEST_SIGNER_KEY: projects/sethvargo-gcpkms-test/locations/global/keyRings/test-keyring/cryptoKeys/signer/cryptoKeyVersions/1
+      run: |-
+        go test \
+          -count=1 \
+          -race \
+          -timeout=10m \
+          -shuffle=on \
+          ./...
