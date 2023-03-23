@@ -18,7 +18,6 @@ package gcpkms
 
 import (
 	"crypto"
-	"crypto/dsa"
 	"crypto/ecdsa"
 	"crypto/ed25519"
 	"crypto/rsa"
@@ -42,8 +41,6 @@ func parsePublicKey(p []byte) (crypto.PublicKey, error) {
 
 	switch t := pub.(type) {
 	case *rsa.PublicKey:
-		return t, nil
-	case *dsa.PublicKey:
 		return t, nil
 	case *ecdsa.PublicKey:
 		return t, nil
