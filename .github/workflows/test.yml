@@ -12,48 +12,42 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: Test
+name: 'Test'
+
 on:
   push:
     branches:
-    - main
+      - 'main'
     tags:
-    - '*'
+      - '*'
   pull_request:
     branches:
-    - main
+      - 'main'
   workflow_dispatch:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: 'ubuntu-latest'
 
     steps:
-    - uses: actions/checkout@v3
+      - uses: 'actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683' # ratchet:actions/checkout@v4
 
-    - uses: actions/setup-go@v3
-      with:
-        go-version: '1.18'
+      - uses: 'actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34' # ratchet:actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
 
-    - uses: google-github-actions/auth@v0
-      with:
-        credentials_json: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
+      - uses: 'google-github-actions/auth@6fc4af4b145ae7821d527454aa9bd537d1f2dc5f' # ratchet:google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
 
-    - uses: actions/cache@v3
-      with:
-        path: ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-go-
-
-    - name: Test
-      env:
-        TEST_DECRYPTER_KEY: projects/sethvargo-gcpkms-test/locations/global/keyRings/test-keyring/cryptoKeys/decrypter/cryptoKeyVersions/1
-        TEST_SIGNER_KEY: projects/sethvargo-gcpkms-test/locations/global/keyRings/test-keyring/cryptoKeys/signer/cryptoKeyVersions/1
-      run: |-
-        go test \
-          -count=1 \
-          -race \
-          -timeout=10m \
-          -shuffle=on \
-          ./...
+      - name: 'Test'
+        env:
+          TEST_DECRYPTER_KEY: 'projects/sethvargo-gcpkms-test/locations/global/keyRings/test-keyring/cryptoKeys/decrypter/cryptoKeyVersions/1'
+          TEST_SIGNER_KEY: 'projects/sethvargo-gcpkms-test/locations/global/keyRings/test-keyring/cryptoKeys/signer/cryptoKeyVersions/1'
+        run: |-
+          go test \
+            -count=1 \
+            -race \
+            -timeout=10m \
+            -shuffle=on \
+            ./...
